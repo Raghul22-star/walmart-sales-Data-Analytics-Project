@@ -1,0 +1,48 @@
+select * from walmart
+
+--1.Find different payment method and number of transactions, number of qty sold
+
+select distinct(payment_method), count(*) as number_of_transaction
+,sum(quantity) as number_of_qty_sold from walmart group by payment_method order by payment_method
+
+--2.Identify the highest_rated category in each branch, displaying the branch, category avg rating
+
+select branch,category,avg(rating) as rating, rank() over(partition by branch order by avg(rating) desc) 
+from walmart group by Branch,category order by Branch
+
+--3.Identify the businest day for each branch on the number of transaction
+select Branch,DATENAME(weekday,date),count(*), RANK() over(Partition by branch order by count(*) desc) as trans 
+from walmart group by Branch, datename(weekday,date) order by
+Branch, COUNT(*) desc
+
+--4.calculate the total quantity of items sold per payment method, list payment_method and total_quantity
+select payment_method, sum(quantity) from walmart group by payment_method
+
+
+--5.Determine the average,mini,maxi rating of each category for each city. List the city, avg_rating,
+---min_rating,and max_rating.
+
+select * from walmart
+
+select city,category,avg(rating) as avg,min(rating) as Mini,MAX(rating) as maxi from 
+walmart group by City,category
+
+--6.Calculate the total profit for each category by considering total 
+--profit as (unit price*quantity*profit_margin).List category and 
+--total profit,ordered from highest to lowest
+
+select * from walmart
+
+select category, sum(total) as total_profit from walmart 
+group by category order by total_profit
+
+--7.Determine the most common payment method for each branch.Display branch and the preferred payment method
+
+select * from walmart
+with cte as
+(
+select branch, payment_method,count(*) as no_of_trans, rank() over(partition by 
+branch order by count(*) desc) as rank
+from walmart group by Branch,payment_method
+)
+select * from cte where rank = 1
